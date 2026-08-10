@@ -687,6 +687,7 @@ class MusicBuilder:
         self.items = iter(items)
         self._events = []         # for direction and spanner-id
         self._comments = []       # for comments between pitch and duration...
+        self._orphans = []        # for events that can't be bound to music
         self.reset()
 
     def reset(self):
@@ -735,6 +736,8 @@ class MusicBuilder:
 
     def pending_music(self):
         """Yield pending music."""
+        yield from self._orphans
+        self._orphans.clear()
         music = self._music
         if self._duration:
             dur = self.factory(lily.Duration, self._duration)
@@ -784,7 +787,14 @@ class MusicBuilder:
             self._articulations.append(art)
             return True
         else:
-            print("Unbound event:", art) # TEMP
+            if self._events:
+                self._events[-1].append(art)
+                art = e = self._events[0]
+                for f in self._events[1:]:
+                    e.append(f)
+                    e = f
+                self._events.clear()
+            self._orphans.append(art)
             return False
 
     def add_spanner_id(self, node):
