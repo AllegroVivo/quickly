@@ -58,6 +58,7 @@ manually construct scheme expressions. For example::
 import fractions
 import math
 
+import parce.action as a
 from parce.lang.scheme import scheme_is_indenting_keyword
 
 from . import base, element
@@ -107,7 +108,46 @@ class Char(element.TextElement):
 
 
 class String(base.String):
-    """A quoted string."""
+    r"""A quoted string.
+
+    Unlike in LilyPond, where a backslash escapes the next character
+    (``\\`` and ``\"``), Scheme escape sequences transform theirs:
+    ``\n`` means a newline.
+    """
+    escapes = {
+        "\\": "\\",
+        '"': '"',
+        "|": "|",
+        "a": "\a",
+        "b": "\b",
+        "f": "\f",
+        "n": "\n",
+        "r": "\r",
+        "t": "\t",
+        "v": "\v",
+    }
+    escaped = {
+        "\\": "\\\\",
+        '"': '\\"',
+        "\a": "\\a",
+        "\b": "\\b",
+        "\f": "\\f",
+        "\n": "\\n",
+        "\r": "\\r",
+        "\t": "\\t",
+        "\v": "\\v",
+    }
+
+    @classmethod
+    def read_head(cls, origin):
+        return "".join(
+            cls.escapes.get(t.text[1:], t.text[1:])
+            if t.action is a.String.Escape else t.text
+            for t in origin[1:-1]
+        )
+
+    def write_head(self):
+        return '"{}"'.format("".join(self.escaped.get(c, c) for c in self.head))
 
 
 class Identifier(element.TextElement):
