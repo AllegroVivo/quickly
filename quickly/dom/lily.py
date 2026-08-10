@@ -2502,14 +2502,15 @@ class FigureSkip(element.HeadElement):
 class FigureAccidental(element.MappingElement):
     r"""An accidental in figure mode.
 
-    One of: -1, -0.5, 0, 0.5, 1, corresponding to:
-     ``'--'``, ``'-'``, ``''``, ``'+'`` or ``'++'``.
+    One of: -1, -0.5, None, 0, 0.5, 1, corresponding to:
+     ``'--'``, ``'-'``, ``''``, ``'!'``, ``'+'`` or ``'++'``.
 
     """
     mapping = {
         '--':  -1,
         '-':   -0.5,
-        '':     0,
+        '':     None,
+        '!':    0,
         '+':    0.5,
         '++':   1,
     }
