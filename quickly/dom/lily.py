@@ -1936,6 +1936,10 @@ class Fingering(element.TextElement):
     r"""A FingeringEvent."""
 
 
+class StringNumber(base.BackslashCommand):
+    r"""A StringNumberEvent, such as ``\4``."""
+
+
 class Dynamic(base.BackslashCommand):
     r"""A dynamic symbol, like ``pp``."""
 
