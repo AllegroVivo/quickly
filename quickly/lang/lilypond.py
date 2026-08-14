@@ -926,6 +926,11 @@ class MusicBuilder:
         r"""Called for ``Name.Builtin.Dynamic``."""
         self.add_articulation(self.factory(lily.Dynamic, (token,)))
 
+    @_action(a.Literal.Number.StringNumber)
+    def string_number_action(self, token):
+        r"""Called for ``Literal.Number.StringNumber``."""
+        self.add_articulation(self.factory(lily.StringNumber, (token,)))
+
     # articulations that are spanners, for articulation_action()
     _articulations_mapping = element.head_mapping(
         lily.Arpeggio, lily.Glissando, lily.LaissezVibrer, lily.Melisma,
