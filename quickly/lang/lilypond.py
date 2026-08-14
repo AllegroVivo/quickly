@@ -459,9 +459,15 @@ class LilyPondTransform(base.Transform):
 
         """
         origin = markup[:1]     # the \markup or \markuplist command
+        args = []
         for mkup in self.read_markup_arguments(itertools.chain(markup[1:], items)):
-            yield self.factory(lily.Markup, origin, (), mkup)
-            break
+            args.append(mkup)
+            if not isinstance(mkup, base.Comment):
+                break
+        if args and not isinstance(args[-1], base.Comment):
+            yield self.factory(lily.Markup, origin, (), *args)
+        else:
+            yield from args
 
     def read_markup_arguments(self, items):
         """Read from items and yield nodes that can occur in markup."""
