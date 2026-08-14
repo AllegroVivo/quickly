@@ -933,6 +933,13 @@ class With(Block):
     space_before = space_after = " "
 
 
+class WithScheme(element.HeadElement):
+    r"""A ``\with`` followed by a scheme expression instead of a ``{`` block,
+    e.g. ``\new Voice \with #mods``."""
+    head = r"\with"
+    space_before = space_after = space_after_head = " "
+
+
 class LayoutContext(Block):
     r"""A \context { } block within \layout or \midi."""
     head = r"\context {"
