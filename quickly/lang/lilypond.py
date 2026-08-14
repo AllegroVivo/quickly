@@ -1119,6 +1119,23 @@ class MusicBuilder:
         else:
             yield self.factory(cls, (token,))
 
+    @_keyword(r"\with")
+    def keyword_with(self, token):
+        r"""Called for Keyword ``\with`` followed by a scheme expression."""
+        comments = []
+        for i in self.items:
+            if not i.is_token and isinstance(i.obj, base.Comment):
+                comments.append(i.obj)
+                continue
+            if not i.is_token and isinstance(i.obj, lily.Scheme):
+                yield self.factory(lily.WithScheme, (token,), (), *comments, i.obj)
+            else:
+                yield from comments
+                if not i.is_token and isinstance(i.obj, element.Element):
+                    yield i.obj     # not a scheme value; at least keep it
+            return
+        yield from comments
+
     @_keyword(r'\lyricmode', r'\lyrics', r'\lyricsto')
     def keyword_lyricmode(self, token):
         r"""Called for Keyword ``\lyricmode``, ``\lyrics`` and ``\lyricsto``."""
