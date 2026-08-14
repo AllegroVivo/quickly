@@ -749,7 +749,7 @@ class MusicBuilder:
                 music = lily.Unpitched(dur)
         elif music:
             # move comment after pitch back to toplevel
-            self._comments[0:] = util.pop_comments(music)
+            self._comments[0:0] = util.pop_comments(music)
         if music:
             if self._modifier:
                 music.extend(self._comments)
