@@ -29,10 +29,17 @@ value is 0 for a whole note, 1 for a half note, 2 for a crotchet, -1 for a
 Durations can be scaled using multiplying, e.g. with a Fraction.
 
 """
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Self
 
 import fractions
 import math
 
+if TYPE_CHECKING:
+    from fractions import Fraction
+
+type DurationValue = float | Fraction
 
 NAMED_DURATIONS = ('breve', 'longa', 'maxima')
 
@@ -44,37 +51,42 @@ class Transform:
     added. A Transform that doesn't modify anything evaluates to False.
 
     """
-    def __init__(self, log=0, dotcount=0, scale=1):
-        self.log = log              #: the log to shift
-        self.dotcount = dotcount    #: the dots to shift
-        self.scale = scale          #: the scaling
+    def __init__(
+        self,
+        log: int = 0,
+        dotcount: int = 0,
+        scale: DurationValue = 1
+    ) -> None:
+        self.log: int = log                 #: the log to shift
+        self.dotcount: int = dotcount       #: the dots to shift
+        self.scale: DurationValue = scale   #: the scaling
 
-    def __bool__(self):
+    def __bool__(self) -> bool:
         return bool(self.log or self.dotcount or self.scale != 1)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return "<{} log={} dotcount={} scale={}>".format(
             type(self).__name__, self.log, self.dotcount, self.scale)
 
-    def __add__(self, other):
+    def __add__(self, other: Transform) -> Self:
         log = self.log + other.log
         dotcount = self.dotcount + other.dotcount
         scale = self.scale * other.scale
         return type(self)(log, dotcount, scale)
 
-    def length(self, duration, scaling=1):
+    def length(self, duration: DurationValue, scaling: DurationValue = 1) -> DurationValue:
         """Return the actual musical length of the duration and scaling values."""
         duration, scaling = self.transform(duration, scaling)
         return duration * scaling
 
-    def transform(self, duration, scaling=1):
+    def transform(self, duration: DurationValue, scaling: DurationValue = 1) -> tuple[DurationValue, DurationValue]:
         """Return a transformed two-tuple (duration, scaling)."""
         if self.log or self.dotcount:
             duration = shift_duration(duration, self.log, self.dotcount)
         return duration, scaling * self.scale
 
 
-def log_dotcount(value):
+def log_dotcount(value: DurationValue) -> tuple[int, int]:
     r"""Return the integer two-tuple (log, dotcount) for the duration value.
 
     The ``value`` may be a Fraction, integer or floating point value.
@@ -119,7 +131,7 @@ def log_dotcount(value):
     return log, dotcount
 
 
-def duration(log, dotcount=0):
+def duration(log: int, dotcount: int = 0) -> Fraction:
     r"""Return the duration as a Fraction.
 
     See for an explanation of the ``log`` and ``dotcount`` values
@@ -131,7 +143,7 @@ def duration(log, dotcount=0):
     return fractions.Fraction(numer, denom)
 
 
-def shift_duration(value, log, dotcount=0):
+def shift_duration(value: DurationValue, log: int, dotcount: int = 0) -> Fraction:
     r"""Shift the duration.
 
     This function is analogous to LilyPond's ``\shiftDurations`` command. It
@@ -172,7 +184,7 @@ def shift_duration(value, log, dotcount=0):
     return duration(old_log + log, max(0, old_dotcount + dotcount))
 
 
-def to_string(value):
+def to_string(value: DurationValue) -> str:
     r"""Convert the value (most times a Fraction) to a LilyPond string notation.
 
     The value is truncated to a duration that can be expressed by a note length
@@ -193,13 +205,13 @@ def to_string(value):
     """
     log, dotcount = log_dotcount(value)
     if log < 0:
-        dur = '\\' + NAMED_DURATIONS[-1-log]
+        dur: str | int = '\\' + NAMED_DURATIONS[-1-log]
     else:
         dur = 1 << log
     return '{}{}'.format(dur, '.' * dotcount)
 
 
-def from_string(text, dotcount=None):
+def from_string(text: str, dotcount: int | None = None) -> Fraction:
     r"""Convert a LilyPond duration string (e.g. ``'4.'``) to a Fraction.
 
     The durations ``\breve``, ``\longa`` and ``\maxima`` may be used with or
@@ -229,7 +241,7 @@ def from_string(text, dotcount=None):
     return duration(log, dotcount)
 
 
-def is_writable(value):
+def is_writable(value: DurationValue) -> bool:
     """Return True if the value can be exactly expressed in a log and dotcount
     value, without loss.
 

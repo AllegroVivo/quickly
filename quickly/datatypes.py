@@ -25,6 +25,11 @@ Too small to justify separate modules but too generic to be added to some
 module where they are actually used.
 
 """
+from __future__ import annotations
+
+from collections.abc import Iterator
+from typing import Any, Self
+
 
 class Properties:
     """A dictionary-like object that accesses keys as attributes.
@@ -56,37 +61,37 @@ class Properties:
     object evaluates to False.
 
     """
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs: Any):
         self.__dict__.update(kwargs)
 
-    def __bool__(self):
+    def __bool__(self) -> bool:
         return bool(vars(self))
 
-    def __repr__(self):
-        def fields():
+    def __repr__(self) -> str:
+        def fields() -> Iterator[str]:
             yield type(self).__name__
             yield " ".join(("{}={}".format(
                 name, repr(value)) for name, value in vars(self).items()))
         return "<{}>".format(" ".join(f for f in fields() if f))
 
-    def __getattr__(self, name):
+    def __getattr__(self, name: str) -> Any:
         return None
 
-    def __delattr__(self, name):
+    def __delattr__(self, name: str) -> None:
         try:
             del self.__dict__[name]
         except KeyError:
             pass
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, Properties):
             return vars(self) == vars(other)
         return NotImplemented
 
-    def __contains__(self, name):
+    def __contains__(self, name: str) -> bool:
         return name in self.__dict__
 
-    def __add__(self, other):
+    def __add__(self, other: Properties) -> Self:
         d = vars(self) | vars(other)
         return type(self)(**d)
 

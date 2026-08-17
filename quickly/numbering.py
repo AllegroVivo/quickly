@@ -21,13 +21,13 @@
 """
 Functions dealing with numbering of voices, parts etcetera.
 """
+from __future__ import annotations
 
-
+from collections.abc import Iterator
 import string
 
 
-
-def int2roman(n):
+def int2roman(n: int) -> str:
     """Convert an integer value to a roman number string.
 
     E.g. 1 -> "I", 12 -> "XII", 2015 -> "MMXV"
@@ -51,7 +51,7 @@ def int2roman(n):
     return "".join(roman)
 
 
-def roman2int(s):
+def roman2int(s: str) -> int:
     """Convert a string with a roman numeral to an integer.
 
     E.g. "MCMLXVII" -> 1967, "iii" -> 3
@@ -72,7 +72,7 @@ def roman2int(s):
     return num
 
 
-def int2letter(n, chars=string.ascii_uppercase):
+def int2letter(n: int, chars: str = string.ascii_uppercase) -> str:
     """Convert an integer to one or more letters.
 
     E.g. 1 -> "A", 2 -> "B", ... 26 -> "Z", 27 -> "AA", etc.
@@ -90,7 +90,7 @@ def int2letter(n, chars=string.ascii_uppercase):
     return "".join(chars[c] for c in reversed(result))
 
 
-def letter2int(s, chars=string.ascii_uppercase):
+def letter2int(s: str, chars: str = string.ascii_uppercase) -> int:
     """Convert a string with letters to an integer.
 
     E.g. "AA" -> 27
@@ -107,7 +107,7 @@ def letter2int(s, chars=string.ascii_uppercase):
     return result
 
 
-def int2text(n):
+def int2text(n: int) -> str:
     """Convert an integer to the English language name of that integer.
 
     E.g. converts 1 to "One". Supports numbers 0 to 999999999.
@@ -115,7 +115,7 @@ def int2text(n):
 
     """
     from parce.lang.numbers import ENGLISH_TO19, ENGLISH_TENS
-    def _int2text(n):
+    def _int2text(n: int) -> Iterator[str]:
         for fact, name in ((1000000, 'million'), (1000, 'thousand')):
             if n >= fact:
                 count, n = divmod(n, fact)
@@ -133,7 +133,7 @@ def int2text(n):
     return "".join(t.title() for t in _int2text(n)) or 'Zero'
 
 
-def text2int(s):
+def text2int(s: str) -> int:
     """Convert a text number in English language to an integer.
 
     E.g. "TwentyOne" -> 21, 'three' -> 3

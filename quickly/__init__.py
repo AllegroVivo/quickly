@@ -24,6 +24,9 @@ The quickly module.
 On first import, our own language definitions are added to the parce registry.
 
 """
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
 
 import os.path
 
@@ -31,11 +34,19 @@ from parce import find, Document
 
 from .pkginfo import version, version_string
 
+if TYPE_CHECKING:
+    from parce.lexicon import Lexicon
 
 __all__ = ('find', 'load', 'version', 'version_string')
 
 
-def load(filename, lexicon=True, encoding=None, errors=None, newline=None):
+def load(
+    filename: str,
+    lexicon: Lexicon | str | bool = True,
+    encoding: str | None = None,
+    errors: str | None = None,
+    newline: str | None = None
+) -> Document:
     """Convenience function to read text from ``filename`` and return a
     :class:`parce.Document`.
 
